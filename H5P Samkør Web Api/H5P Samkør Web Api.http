@@ -1,0 +1,6 @@
+@H5P_Samkør_Web_Api_HostAddress = http://localhost:5181
+
+GET {{H5P_Samkør_Web_Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
