@@ -20,6 +20,10 @@ public class TokenService : ITokenService
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            // Tilføjes eksplicit, så vi altid kan læse bruger-id'et via
+            // ClaimTypes.NameIdentifier i controllere, uanset hvordan
+            // JWT-handleren mapper "sub"-claimet internt.
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
             new(ClaimTypes.Name, user.FullName),
         };
