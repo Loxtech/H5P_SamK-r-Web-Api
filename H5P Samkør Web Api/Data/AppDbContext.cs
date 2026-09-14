@@ -1,13 +1,17 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using H5P_Samkør_Web_Api.Models;
 
 namespace H5P_Samkør_Web_Api.Data;
 
-public class AppDbContext : DbContext
+// IdentityDbContext<User, IdentityRole<Guid>, Guid> giver os automatisk
+// alle Identity-tabellerne (AspNetUsers, AspNetRoles, AspNetUserRoles m.fl.)
+// oven i vores egne DbSets herunder.
+public class AppDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-    public DbSet<User> Users => Set<User>();
     public DbSet<Vehicle> Vehicles => Set<Vehicle>();
     public DbSet<Trip> Trips => Set<Trip>();
     public DbSet<Booking> Bookings => Set<Booking>();
@@ -16,13 +20,15 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Skal altid kaldes først ved arv fra IdentityDbContext,
+        // ellers bliver Identity-tabellerne ikke konfigureret korrekt.
+        base.OnModelCreating(modelBuilder);
+
         // ---- User ----
+        // Email/unikhed håndteres allerede af Identity (NormalizedEmail-index)
         modelBuilder.Entity<User>(e =>
         {
-            e.HasIndex(u => u.Email).IsUnique();
             e.Property(u => u.FullName).IsRequired().HasMaxLength(100);
-            e.Property(u => u.Email).IsRequired().HasMaxLength(200);
-            e.Property(u => u.Role).IsRequired().HasMaxLength(20);
         });
 
         // ---- Vehicle ----
@@ -88,7 +94,7 @@ public class AppDbContext : DbContext
             e.Property(r => r.Stars).IsRequired();
 
             // Sikrer at en bruger kun kan give én bedømmelse
-            // pr. medrejsende pr. tur
+            // pr. medrejsende pr. tur (Krav 7 - dataintegritet)
             e.HasIndex(r => new { r.TripId, r.RaterId, r.RateeId }).IsUnique();
 
             e.HasOne(r => r.Trip)

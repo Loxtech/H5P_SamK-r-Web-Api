@@ -1,17 +1,15 @@
+using Microsoft.AspNetCore.Identity;
+
 namespace H5P_Samkør_Web_Api.Models;
 
-public class User
+// Arver Email, PasswordHash, PhoneNumber m.m. fra IdentityUser<Guid>.
+// Rollerne "User" og "Administrator" håndteres af Identity's eget
+// rollesystem (AspNetRoles/AspNetUserRoles), ikke som et felt her.
+public class User : IdentityUser<Guid>
 {
-    public Guid Id { get; set; }
     public string FullName { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
-    public string PasswordHash { get; set; } = string.Empty;
-    public string? Phone { get; set; }
 
-    // "User" eller "Administrator",se 2.6 i kravspecifikationen
-    public string Role { get; set; } = "User";
-
-    // Cachet gennemsnitlig rating, opdateres når en ny Rating oprettes (Krav 7)
+    // Cachet gennemsnitlig rating, opdateres når en ny Rating oprettes
     public double AverageRating { get; set; }
     public int RatingCount { get; set; }
 
