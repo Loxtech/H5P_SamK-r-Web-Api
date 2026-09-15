@@ -1,8 +1,8 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using H5P_Samkør_Web_Api.Data;
+using H5P_Samkør_Web_Api.Extensions;
 using H5P_Samkør_Web_Api.Models;
 using H5P_Samkør_Web_Api.Models.DTOs;
 
@@ -50,6 +50,44 @@ public class TripsController : ControllerBase
         return Ok(trips.Select(ToResponse));
     }
 
+    // Krav 7 - Oversigt over planlagte og gennemførte ture, både som
+    // chauffør og som passager. Placeres før "{id:guid}", så "mine"
+    // ikke fejlagtigt forsøges parset som et GUID.
+    [HttpGet("mine")]
+    [Authorize]
+    public async Task<ActionResult<TripOverviewResponse>> GetMyTripsOverview()
+    {
+        var currentUserId = User.GetUserId();
+        var now = DateTime.UtcNow;
+
+        var driverTrips = await _db.Trips
+            .Where(t => t.DriverId == currentUserId)
+            .ToListAsync();
+
+        var passengerBookings = await _db.Bookings
+            .Include(b => b.Trip)
+            .Where(b => b.PassengerId == currentUserId &&
+                        (b.Status == BookingStatus.Pending || b.Status == BookingStatus.Accepted))
+            .ToListAsync();
+
+        var items = new List<TripOverviewItem>();
+
+        items.AddRange(driverTrips.Select(t => new TripOverviewItem(
+            t.Id, t.FromCity, t.ToCity, t.DepartureTime,
+            "Chauffør", "Oprettet", t.DepartureTime < now)));
+
+        items.AddRange(passengerBookings.Select(b => new TripOverviewItem(
+            b.TripId, b.Trip.FromCity, b.Trip.ToCity, b.Trip.DepartureTime,
+            "Passager", b.Status.ToString(), b.Trip.DepartureTime < now)));
+
+        var ordered = items.OrderBy(i => i.DepartureTime).ToList();
+
+        return Ok(new TripOverviewResponse(
+            Planned: ordered.Where(i => !i.IsCompleted),
+            Completed: ordered.Where(i => i.IsCompleted)
+        ));
+    }
+
     [HttpGet("{id:guid}")]
     [AllowAnonymous]
     public async Task<ActionResult<TripResponse>> GetTrip(Guid id)
@@ -72,7 +110,7 @@ public class TripsController : ControllerBase
         var trip = new Trip
         {
             Id = Guid.NewGuid(),
-            DriverId = GetCurrentUserId(),
+            DriverId = User.GetUserId(),
             FromCity = request.FromCity,
             ToCity = request.ToCity,
             DepartureTime = request.DepartureTime,
@@ -88,7 +126,7 @@ public class TripsController : ControllerBase
         return CreatedAtAction(nameof(GetTrip), new { id = trip.Id }, ToResponse(trip));
     }
 
-    // Redigering kun chaufføren selv eller en administrator,
+    // Redigering - kun chaufføren selv eller en administrator,
     // og kun så længe turen ikke er fuldt booket
     [HttpPut("{id:guid}")]
     [Authorize]
@@ -99,7 +137,7 @@ public class TripsController : ControllerBase
             return NotFound();
 
         var isAdmin = User.IsInRole("Administrator");
-        if (trip.DriverId != GetCurrentUserId() && !isAdmin)
+        if (trip.DriverId != User.GetUserId() && !isAdmin)
             return Forbid();
 
         if (trip.AvailableSeats == 0 && !isAdmin)
@@ -119,7 +157,7 @@ public class TripsController : ControllerBase
         return NoContent();
     }
 
-    // Aflysning samme regler som redigering (Krav 2 + Krav 8)
+    // Aflysning - samme regler som redigering (Krav 2 + Krav 8)
     [HttpDelete("{id:guid}")]
     [Authorize]
     public async Task<IActionResult> DeleteTrip(Guid id)
@@ -129,7 +167,7 @@ public class TripsController : ControllerBase
             return NotFound();
 
         var isAdmin = User.IsInRole("Administrator");
-        if (trip.DriverId != GetCurrentUserId() && !isAdmin)
+        if (trip.DriverId != User.GetUserId() && !isAdmin)
             return Forbid();
 
         if (trip.AvailableSeats == 0 && !isAdmin)
@@ -138,12 +176,6 @@ public class TripsController : ControllerBase
         _db.Trips.Remove(trip);
         await _db.SaveChangesAsync();
         return NoContent();
-    }
-
-    private Guid GetCurrentUserId()
-    {
-        var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        return Guid.Parse(idClaim!);
     }
 
     private static TripResponse ToResponse(Trip trip) => new(
