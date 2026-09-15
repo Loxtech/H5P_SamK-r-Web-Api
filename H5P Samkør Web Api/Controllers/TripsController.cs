@@ -50,6 +50,44 @@ public class TripsController : ControllerBase
         return Ok(trips.Select(ToResponse));
     }
 
+    // Krav 7 - Oversigt over planlagte og gennemførte ture, både som
+    // chauffør og som passager. Placeres før "{id:guid}", så "mine"
+    // ikke fejlagtigt forsøges parset som et GUID.
+    [HttpGet("mine")]
+    [Authorize]
+    public async Task<ActionResult<TripOverviewResponse>> GetMyTripsOverview()
+    {
+        var currentUserId = User.GetUserId();
+        var now = DateTime.UtcNow;
+
+        var driverTrips = await _db.Trips
+            .Where(t => t.DriverId == currentUserId)
+            .ToListAsync();
+
+        var passengerBookings = await _db.Bookings
+            .Include(b => b.Trip)
+            .Where(b => b.PassengerId == currentUserId &&
+                        (b.Status == BookingStatus.Pending || b.Status == BookingStatus.Accepted))
+            .ToListAsync();
+
+        var items = new List<TripOverviewItem>();
+
+        items.AddRange(driverTrips.Select(t => new TripOverviewItem(
+            t.Id, t.FromCity, t.ToCity, t.DepartureTime,
+            "Chauffør", "Oprettet", t.DepartureTime < now)));
+
+        items.AddRange(passengerBookings.Select(b => new TripOverviewItem(
+            b.TripId, b.Trip.FromCity, b.Trip.ToCity, b.Trip.DepartureTime,
+            "Passager", b.Status.ToString(), b.Trip.DepartureTime < now)));
+
+        var ordered = items.OrderBy(i => i.DepartureTime).ToList();
+
+        return Ok(new TripOverviewResponse(
+            Planned: ordered.Where(i => !i.IsCompleted),
+            Completed: ordered.Where(i => i.IsCompleted)
+        ));
+    }
+
     [HttpGet("{id:guid}")]
     [AllowAnonymous]
     public async Task<ActionResult<TripResponse>> GetTrip(Guid id)

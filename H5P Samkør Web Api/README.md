@@ -54,11 +54,23 @@ Svendeprøveprojekt: en webbaseret samkørselsplatform, hvor brugere kan oprette
   - `DELETE /api/Trips/{id}` – aflysning, samme regler som redigering
 - `Vehicle`-tilknytning på en tur er forberedt (`VehicleId` er nullable), men selve `VehiclesController` og muligheden for at knytte flere biler til en brugerprofil er bevidst nedprioriteret til senere, da det ikke indgår i kravspecifikationen som et selvstændigt krav
 
+### 6. Booking-flow (Krav 4 og 5)
+- `BookingsController` understøtter:
+  - `POST /api/Bookings` – passager anmoder om en ledig plads
+  - `PUT /api/Bookings/{id}/accept` – chauffør godkender anmodningen
+  - `PUT /api/Bookings/{id}/reject` – chauffør afviser anmodningen
+  - `GET /api/Bookings/mine` – egne anmodninger/bookinger som passager
+  - `GET /api/Bookings/received` – modtagne anmodninger som chauffør
+- Ved godkendelse nedjusteres `Trip.AvailableSeats`, og en samtidig, konkurrerende godkendelse af den sidste ledige plads afvises med `409 Conflict` via `Trip.RowVersion` (optimistic concurrency) – det er den konkrete mekanisme, der forhindrer overbooking
+
+### 7. Oversigt over ture (Krav 7)
+- `GET /api/Trips/mine` samler brugerens ture på tværs af begge roller: oprettede ture som chauffør og aktive bookinger som passager
+- Opdelt i `planned` og `completed` ud fra om turens afgangstidspunkt er i fremtiden eller fortiden
+
 ## Endnu ikke lavet
 
-- Booking-flow (anmode, godkende/afvise) – i gang
 - Chat (SignalR)
-- Bedømmelse af medrejsende (Krav 7)
+- Bedømmelse af medrejsende (Krav 7 – tilføjet feature)
 - Tilknytning af flere køretøjer til en brugerprofil (`VehiclesController`) – lavt prioriteret, kun hvis tid tillader det
 - Angular-frontend
 
