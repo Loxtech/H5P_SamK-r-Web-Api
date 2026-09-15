@@ -39,15 +39,27 @@ Svendeprøveprojekt: en webbaseret samkørselsplatform, hvor brugere kan oprette
 - Første migration (`InitialCreate`) er kørt via Package Manager Console (`Add-Migration`, `Update-Database`)
 - Databasen `SamKorDb` kører lokalt på `(localdb)\mssqllocaldb` og indeholder både Identity-tabellerne og projektets egne tabeller
 
+### 4. Registrering, login og roller
+- `POST /api/Auth/register` og `POST /api/Auth/login` udsteder JWT-tokens via `TokenService`
+- Rollen `"User"` tildeles automatisk ved registrering (Krav 1)
+- Rollerne `"User"` og `"Administrator"` samt en standard-administrator seedes automatisk ved opstart (Krav 8), konfigureret via `SeedAdmin`-sektionen i `appsettings.json`
+- Swagger er konfigureret med JWT Bearer-autorisation, så endpoints med `[Authorize]` kan testes direkte i UI'et
+
+### 5. Tur-CRUD (Krav 2 og 3)
+- `TripsController` understøtter:
+  - `GET /api/Trips` – søgning på fra-lokation, til-lokation og dato (offentligt tilgængelig, kræver ikke login)
+  - `GET /api/Trips/{id}` – enkelt tur-visning (offentligt tilgængelig)
+  - `POST /api/Trips` – oprettelse af tur, kræver login, valideres mod at afgangstidspunktet er i fremtiden
+  - `PUT /api/Trips/{id}` – redigering, kun tilladt for turens chauffør eller en administrator, og kun mens turen ikke er fuldt booket
+  - `DELETE /api/Trips/{id}` – aflysning, samme regler som redigering
+- `Vehicle`-tilknytning på en tur er forberedt (`VehicleId` er nullable), men selve `VehiclesController` og muligheden for at knytte flere biler til en brugerprofil er bevidst nedprioriteret til senere, da det ikke indgår i kravspecifikationen som et selvstændigt krav
+
 ## Endnu ikke lavet
 
-- Registrering og login-endpoints (udsteder JWT)
-- Seeding af standard-administrator og roller ved opstart
-- CRUD for ture (oprette/redigere/aflyse)
-- Søgning efter ture
-- Booking-flow (anmode, godkende/afvise)
+- Booking-flow (anmode, godkende/afvise) – i gang
 - Chat (SignalR)
 - Bedømmelse af medrejsende (Krav 7)
+- Tilknytning af flere køretøjer til en brugerprofil (`VehiclesController`) – lavt prioriteret, kun hvis tid tillader det
 - Angular-frontend
 
 ## Kom i gang lokalt

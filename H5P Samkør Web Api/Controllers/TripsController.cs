@@ -1,8 +1,8 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using H5P_Samkør_Web_Api.Data;
+using H5P_Samkør_Web_Api.Extensions;
 using H5P_Samkør_Web_Api.Models;
 using H5P_Samkør_Web_Api.Models.DTOs;
 
@@ -72,7 +72,7 @@ public class TripsController : ControllerBase
         var trip = new Trip
         {
             Id = Guid.NewGuid(),
-            DriverId = GetCurrentUserId(),
+            DriverId = User.GetUserId(),
             FromCity = request.FromCity,
             ToCity = request.ToCity,
             DepartureTime = request.DepartureTime,
@@ -88,7 +88,7 @@ public class TripsController : ControllerBase
         return CreatedAtAction(nameof(GetTrip), new { id = trip.Id }, ToResponse(trip));
     }
 
-    // Redigering kun chaufføren selv eller en administrator,
+    // Redigering - kun chaufføren selv eller en administrator,
     // og kun så længe turen ikke er fuldt booket
     [HttpPut("{id:guid}")]
     [Authorize]
@@ -99,7 +99,7 @@ public class TripsController : ControllerBase
             return NotFound();
 
         var isAdmin = User.IsInRole("Administrator");
-        if (trip.DriverId != GetCurrentUserId() && !isAdmin)
+        if (trip.DriverId != User.GetUserId() && !isAdmin)
             return Forbid();
 
         if (trip.AvailableSeats == 0 && !isAdmin)
@@ -119,7 +119,7 @@ public class TripsController : ControllerBase
         return NoContent();
     }
 
-    // Aflysning samme regler som redigering (Krav 2 + Krav 8)
+    // Aflysning - samme regler som redigering (Krav 2 + Krav 8)
     [HttpDelete("{id:guid}")]
     [Authorize]
     public async Task<IActionResult> DeleteTrip(Guid id)
@@ -129,7 +129,7 @@ public class TripsController : ControllerBase
             return NotFound();
 
         var isAdmin = User.IsInRole("Administrator");
-        if (trip.DriverId != GetCurrentUserId() && !isAdmin)
+        if (trip.DriverId != User.GetUserId() && !isAdmin)
             return Forbid();
 
         if (trip.AvailableSeats == 0 && !isAdmin)
@@ -138,12 +138,6 @@ public class TripsController : ControllerBase
         _db.Trips.Remove(trip);
         await _db.SaveChangesAsync();
         return NoContent();
-    }
-
-    private Guid GetCurrentUserId()
-    {
-        var idClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        return Guid.Parse(idClaim!);
     }
 
     private static TripResponse ToResponse(Trip trip) => new(
