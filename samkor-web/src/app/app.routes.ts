@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'trips', pathMatch: 'full' },
@@ -13,8 +14,17 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/auth/register/register.component').then((m) => m.RegisterComponent),
   },
-
-  // Tilføjes i de kommende skridt:
-  // { path: 'trips', loadComponent: () => import('./features/trips/trip-search/trip-search.component').then(m => m.TripSearchComponent) },
-  // { path: 'my-trips', canActivate: [authGuard], loadComponent: () => ... },
+  {
+    path: 'trips',
+    loadComponent: () =>
+      import('./features/trips/trip-search/trip-search.component').then(
+        (m) => m.TripSearchComponent,
+      ),
+  },
+  {
+    path: 'my-trips',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/trips/my-trips/my-trips.component').then((m) => m.MyTripsComponent),
+  },
 ];
