@@ -37,10 +37,10 @@ public class RatingsController : ControllerBase
         if (request.RateeId == currentUserId)
             return BadRequest("Du kan ikke bedømme dig selv.");
 
-        if (!await WasParticipant(trip, currentUserId))
+        if (!await _db.IsParticipant(trip, currentUserId))
             return Forbid();
 
-        if (!await WasParticipant(trip, request.RateeId))
+        if (!await _db.IsParticipant(trip, request.RateeId))
             return BadRequest("Den valgte bruger deltog ikke i denne tur.");
 
         var alreadyRated = await _db.Ratings.AnyAsync(r =>
@@ -86,6 +86,22 @@ public class RatingsController : ControllerBase
         return CreatedAtAction(nameof(GetRating), new { id = rating.Id }, ToResponse(rating));
     }
 
+    // Så frontend kan vise, hvilke medrejsende brugeren allerede har
+    // bedømt for en given tur, og undgå at vise formularen for dem igen
+    [HttpGet("trip/{tripId:guid}/mine")]
+    public async Task<ActionResult<IEnumerable<RatingResponse>>> GetMyRatingsForTrip(Guid tripId)
+    {
+        var currentUserId = User.GetUserId();
+
+        var ratings = await _db.Ratings
+            .Include(r => r.Rater)
+            .Include(r => r.Ratee)
+            .Where(r => r.TripId == tripId && r.RaterId == currentUserId)
+            .ToListAsync();
+
+        return Ok(ratings.Select(ToResponse));
+    }
+
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<RatingResponse>> GetRating(Guid id)
     {
@@ -111,19 +127,6 @@ public class RatingsController : ControllerBase
             return NotFound();
 
         return Ok(new UserRatingSummary(user.Id, user.FullName, Math.Round(user.AverageRating, 2), user.RatingCount));
-    }
-
-    // En bruger var enten chaufføren på turen, eller havde en godkendt
-    // booking på den
-    private async Task<bool> WasParticipant(Trip trip, Guid userId)
-    {
-        if (trip.DriverId == userId)
-            return true;
-
-        return await _db.Bookings.AnyAsync(b =>
-            b.TripId == trip.Id &&
-            b.PassengerId == userId &&
-            b.Status == BookingStatus.Accepted);
     }
 
     private static RatingResponse ToResponse(Rating rating) => new(

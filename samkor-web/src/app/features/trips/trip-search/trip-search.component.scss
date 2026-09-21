@@ -43,7 +43,8 @@
   gap: 6px;
   flex: 1 1 140px;
 
-  label {
+  label,
+  .field-label {
     font-size: 13px;
     font-weight: 700;
   }
@@ -165,4 +166,10 @@
   &.error {
     color: var(--color-error);
   }
+}
+
+.own-trip-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
 }

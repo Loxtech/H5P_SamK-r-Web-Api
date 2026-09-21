@@ -1,0 +1,15 @@
+@if (open()) {
+  <div class="dialog-overlay" (click)="onCancel()"></div>
+  <div class="dialog" role="alertdialog" aria-modal="true" [attr.aria-label]="title()">
+    <h2>{{ title() }}</h2>
+    @if (message()) {
+      <p>{{ message() }}</p>
+    }
+    <div class="dialog-actions">
+      <button type="button" class="cancel" (click)="onCancel()">{{ cancelLabel() }}</button>
+      <button type="button" class="confirm" [class.danger]="danger()" (click)="onConfirm()">
+        {{ confirmLabel() }}
+      </button>
+    </div>
+  </div>
+}

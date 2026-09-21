@@ -13,10 +13,16 @@
       <label for="to">Til</label>
       <input id="to" type="text" formControlName="to" placeholder="fx Aarhus" />
     </div>
-    <div class="field">
-      <label for="date">Dato</label>
-      <input id="date" type="date" formControlName="date" />
-    </div>
+    <label class="field">
+      <span class="field-label">Tidligst afgang</span>
+      <input
+        type="text"
+        formControlName="departureAfter"
+        appFlatpickr
+        [enableTime]="true"
+        placeholder="Vælg dato og tid"
+      />
+    </label>
     <button type="submit">Søg</button>
   </form>
 
@@ -50,28 +56,32 @@
         </div>
 
         <div class="actions">
-          @switch (bookingState()[trip.id]?.status) {
-            @case ('success') {
-              <p class="booking-message success">{{ bookingState()[trip.id]?.message }}</p>
-            }
-            @case ('error') {
-              <p class="booking-message error">{{ bookingState()[trip.id]?.message }}</p>
-              <button type="button" (click)="requestBooking(trip)">Prøv igen</button>
-            }
-            @default {
-              <button
-                type="button"
-                [disabled]="bookingState()[trip.id]?.status === 'loading' || trip.availableSeats === 0"
-                (click)="requestBooking(trip)"
-              >
-                @if (trip.availableSeats === 0) {
-                  Fuldt booket
-                } @else if (bookingState()[trip.id]?.status === 'loading') {
-                  Sender...
-                } @else {
-                  Anmod om plads
-                }
-              </button>
+          @if (trip.driverId === authService.currentUser()?.userId) {
+            <span class="own-trip-label">Din egen tur</span>
+          } @else {
+            @switch (bookingState()[trip.id]?.status) {
+              @case ('success') {
+                <p class="booking-message success">{{ bookingState()[trip.id]?.message }}</p>
+              }
+              @case ('error') {
+                <p class="booking-message error">{{ bookingState()[trip.id]?.message }}</p>
+                <button type="button" (click)="requestBooking(trip)">Prøv igen</button>
+              }
+              @default {
+                <button
+                  type="button"
+                  [disabled]="bookingState()[trip.id]?.status === 'loading' || trip.availableSeats === 0"
+                  (click)="requestBooking(trip)"
+                >
+                  @if (trip.availableSeats === 0) {
+                    Fuldt booket
+                  } @else if (bookingState()[trip.id]?.status === 'loading') {
+                    Sender...
+                  } @else {
+                    Anmod om plads
+                  }
+                </button>
+              }
             }
           }
         </div>

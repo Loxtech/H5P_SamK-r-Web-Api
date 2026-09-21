@@ -1,7 +1,10 @@
 <div class="page">
-  <div class="heading">
-    <h1>Mine ture</h1>
-    <p>Overblik over ture du kører, og ture du er booket ind på.</p>
+  <div class="heading-row">
+    <div class="heading">
+      <h1>Mine ture</h1>
+      <p>Overblik over ture du kører, og ture du er booket ind på.</p>
+    </div>
+    <a routerLink="/trips/new" class="new-trip-link">+ Opret tur</a>
   </div>
 
   <div class="tabs">
@@ -37,6 +40,34 @@
             <span class="badge role">{{ item.role }}</span>
             <span class="badge status">{{ item.status }}</span>
           </div>
+
+          @if (!item.isCompleted) {
+            <div class="actions">
+              @if (item.role === 'Chauffør' || item.status === 'Accepted') {
+                <a [routerLink]="['/trips', item.tripId, 'chat']" class="chat-link">Chat</a>
+              }
+
+              @if (item.role === 'Chauffør') {
+                @if (cancelState()[item.tripId]?.status === 'error') {
+                  <p class="cancel-message">{{ cancelState()[item.tripId]?.message }}</p>
+                }
+                <button
+                  type="button"
+                  class="cancel-btn"
+                  [disabled]="cancelState()[item.tripId]?.status === 'loading'"
+                  (click)="cancelTrip(item)"
+                >
+                  Aflys tur
+                </button>
+              }
+            </div>
+          }
+
+          @if (item.isCompleted) {
+            <div class="actions">
+              <a [routerLink]="['/trips', item.tripId, 'rate']" class="rate-link">Bedøm medrejsende</a>
+            </div>
+          }
         </article>
       } @empty {
         <p class="status">Ingen ture her endnu.</p>
@@ -44,3 +75,22 @@
     </div>
   }
 </div>
+
+<app-confirm-dialog
+  [open]="pendingCancelItem() !== null"
+  title="Aflys tur"
+  [message]="
+    pendingCancelItem()
+      ? 'Er du sikker på, at du vil aflyse turen ' +
+        pendingCancelItem()!.fromCity +
+        ' → ' +
+        pendingCancelItem()!.toCity +
+        '?'
+      : ''
+  "
+  confirmLabel="Aflys tur"
+  cancelLabel="Behold turen"
+  [danger]="true"
+  (confirmed)="confirmCancel()"
+  (cancelled)="dismissCancel()"
+/>

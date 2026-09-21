@@ -22,6 +22,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'trips/new',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/trips/create-trip/create-trip.component').then(
+        (m) => m.CreateTripComponent,
+      ),
+  },
+  {
     path: 'my-trips',
     canActivate: [authGuard],
     loadComponent: () =>
@@ -33,6 +41,22 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/bookings/received-bookings/received-bookings.component').then(
         (m) => m.ReceivedBookingsComponent,
+      ),
+  },
+  {
+    path: 'trips/:id/rate',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/ratings/rate-trip/rate-trip.component').then(
+        (m) => m.RateTripComponent,
+      ),
+  },
+  {
+    path: 'trips/:id/chat',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/chat/trip-chat/trip-chat.component').then(
+        (m) => m.TripChatComponent,
       ),
   },
 ];

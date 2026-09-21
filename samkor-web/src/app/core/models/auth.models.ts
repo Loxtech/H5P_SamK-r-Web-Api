@@ -10,6 +10,7 @@ export interface LoginRequest {
 }
 
 export interface AuthResponse {
+  userId: string;
   token: string;
   expiresAt: string;
   fullName: string;

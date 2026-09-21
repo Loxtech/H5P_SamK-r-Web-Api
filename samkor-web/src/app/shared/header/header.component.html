@@ -10,6 +10,7 @@
   <nav class="nav-desktop">
     <a routerLink="/trips">Søg ture</a>
     @if (authService.isLoggedIn()) {
+      <a routerLink="/trips/new">Opret tur</a>
       <a routerLink="/my-trips">Mine ture</a>
       <a routerLink="/bookings/received">Anmodninger</a>
     }
@@ -56,6 +57,7 @@
   <nav class="mobile-nav-links">
     <a routerLink="/trips" (click)="closeMenu()">Søg ture</a>
     @if (authService.isLoggedIn()) {
+      <a routerLink="/trips/new" (click)="closeMenu()">Opret tur</a>
       <a routerLink="/my-trips" (click)="closeMenu()">Mine ture</a>
       <a routerLink="/bookings/received" (click)="closeMenu()">Anmodninger</a>
     }

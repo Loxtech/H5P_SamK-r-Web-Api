@@ -1,0 +1,60 @@
+<div class="page">
+  <div class="heading">
+    <h1>Opret en tur</h1>
+    <p>Del en ledig plads med andre på din tur.</p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="trip-form">
+    <div class="field">
+      <label for="fromCity">Fra</label>
+      <input id="fromCity" type="text" formControlName="fromCity" placeholder="fx København" />
+      @if (form.controls.fromCity.invalid && form.controls.fromCity.touched) {
+        <span class="field-error">Angiv en fra-lokation.</span>
+      }
+    </div>
+
+    <div class="field">
+      <label for="toCity">Til</label>
+      <input id="toCity" type="text" formControlName="toCity" placeholder="fx Aarhus" />
+      @if (form.controls.toCity.invalid && form.controls.toCity.touched) {
+        <span class="field-error">Angiv en til-lokation.</span>
+      }
+    </div>
+
+    <label class="field">
+      <span class="field-label">Afgangstidspunkt</span>
+      <input
+        type="text"
+        formControlName="departureTime"
+        appFlatpickr
+        [enableTime]="true"
+        placeholder="Vælg dato og tid"
+      />
+      @if (form.controls.departureTime.invalid && form.controls.departureTime.touched) {
+        <span class="field-error">Vælg et afgangstidspunkt.</span>
+      }
+    </label>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="availableSeats">Ledige pladser</label>
+        <input id="availableSeats" type="number" formControlName="availableSeats" min="1" max="8" />
+      </div>
+      <div class="field">
+        <label for="pricePerSeat">Pris pr. plads (kr.)</label>
+        <input id="pricePerSeat" type="number" formControlName="pricePerSeat" min="0" step="1" />
+      </div>
+    </div>
+
+    @if (errorMessage()) {
+      <p class="form-error">{{ errorMessage() }}</p>
+    }
+
+    <div class="form-actions">
+      <a routerLink="/my-trips" class="cancel-link">Annuller</a>
+      <button type="submit" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Opretter...' : 'Opret tur' }}
+      </button>
+    </div>
+  </form>
+</div>
