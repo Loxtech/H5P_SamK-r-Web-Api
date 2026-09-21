@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<title>SamKør – Chat-test</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; color: #222; }
+  h1 { font-size: 1.4rem; }
+  label { display: block; font-weight: 600; margin-top: 1rem; margin-bottom: 0.25rem; }
+  textarea, input[type="text"] { width: 100%; box-sizing: border-box; padding: 0.5rem; font-family: inherit; }
+  button { padding: 0.5rem 1rem; margin-top: 0.75rem; cursor: pointer; }
+  #status { font-weight: 600; margin-top: 0.5rem; }
+  .connected { color: #1a7f37; }
+  .disconnected { color: #cf222e; }
+  #messages { border: 1px solid #d0d7de; height: 300px; overflow-y: auto; padding: 0.5rem; margin-top: 1rem; background: #f6f8fa; }
+  .msg { margin-bottom: 0.6rem; }
+  .msg .meta { font-size: 0.75rem; color: #57606a; }
+  .send-row { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+  .send-row input { flex: 1; }
+</style>
+</head>
+<body>
+  <h1>SamKør – Chat-test</h1>
+  <p>Simpel testside til at bekræfte, at chatten (Krav 6) virker, inden frontenden er bygget. Kør API-projektet, og åbn denne side på samme adresse som Swagger (fx <code>https://localhost:7209/chat-test.html</code>).</p>
+
+  <label for="token">JWT-token (kopieret fra svaret på POST /api/Auth/login)</label>
+  <textarea id="token" rows="3" placeholder="Indsæt token her..."></textarea>
+
+  <label for="tripId">Trip Id</label>
+  <input id="tripId" type="text" placeholder="fx f43f570e-88e1-4a3b-9431-6fa41ce1eae5">
+
+  <button id="connectBtn">Forbind &amp; hent historik</button>
+  <p id="status" class="disconnected">Ikke forbundet</p>
+
+  <div id="messages"></div>
+
+  <div class="send-row">
+    <input id="messageInput" type="text" placeholder="Skriv en besked..." disabled>
+    <button id="sendBtn" disabled>Send</button>
+  </div>
+
+  <script>
+    let connection = null;
+
+    function addMessage(senderFullName, content, sentAt) {
+      const div = document.createElement('div');
+      div.className = 'msg';
+      const time = new Date(sentAt).toLocaleTimeString('da-DK');
+      div.innerHTML = `<div class="meta">${senderFullName} · ${time}</div><div>${content}</div>`;
+      const box = document.getElementById('messages');
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function setConnectedState(isConnected, tripId) {
+      const status = document.getElementById('status');
+      status.textContent = isConnected ? `Forbundet til tur ${tripId}` : 'Ikke forbundet';
+      status.className = isConnected ? 'connected' : 'disconnected';
+      document.getElementById('messageInput').disabled = !isConnected;
+      document.getElementById('sendBtn').disabled = !isConnected;
+    }
+
+    document.getElementById('connectBtn').addEventListener('click', async () => {
+      const token = document.getElementById('token').value.trim();
+      const tripId = document.getElementById('tripId').value.trim();
+
+      if (!token || !tripId) {
+        alert('Udfyld både token og Trip Id.');
+        return;
+      }
+
+      document.getElementById('messages').innerHTML = '';
+
+      // 1. Hent besked-historikken via det almindelige REST-endpoint
+      try {
+        const res = await fetch(`/api/trips/${tripId}/messages`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!res.ok) {
+          alert(`Kunne ikke hente historik: ${res.status} ${res.statusText}`);
+          return;
+        }
+        const history = await res.json();
+        history.forEach(m => addMessage(m.senderFullName, m.content, m.sentAt));
+      } catch (err) {
+        alert('Fejl ved hentning af historik: ' + err);
+        return;
+      }
+
+      // 2. Opret SignalR-forbindelsen til hub'en, for nye beskeder i realtid
+      if (connection) {
+        await connection.stop();
+      }
+
+      connection = new signalR.HubConnectionBuilder()
+        .withUrl(`/hubs/chat?access_token=${encodeURIComponent(token)}`)
+        .withAutomaticReconnect()
+        .build();
+
+      connection.on('ReceiveMessage', (msg) => {
+        addMessage(msg.senderFullName, msg.content, msg.sentAt);
+      });
+
+      connection.onclose(() => setConnectedState(false));
+
+      try {
+        await connection.start();
+        await connection.invoke('JoinTrip', tripId);
+        setConnectedState(true, tripId);
+      } catch (err) {
+        alert('Kunne ikke forbinde: ' + err);
+      }
+    });
+
+    async function sendMessage() {
+      const tripId = document.getElementById('tripId').value.trim();
+      const input = document.getElementById('messageInput');
+      const content = input.value.trim();
+      if (!content || !connection) return;
+
+      try {
+        await connection.invoke('SendMessage', tripId, content);
+        input.value = '';
+      } catch (err) {
+        alert('Kunne ikke sende besked: ' + err);
+      }
+    }
+
+    document.getElementById('sendBtn').addEventListener('click', sendMessage);
+    document.getElementById('messageInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+  </script>
+</body>
+</html>
