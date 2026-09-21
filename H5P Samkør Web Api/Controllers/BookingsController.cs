@@ -28,6 +28,9 @@ public class BookingsController : ControllerBase
         if (trip is null)
             return NotFound("Turen findes ikke.");
 
+        if (trip.DepartureTime <= DateTime.UtcNow)
+            return BadRequest("Turen er allerede kørt.");
+
         var currentUserId = User.GetUserId();
 
         if (trip.DriverId == currentUserId)

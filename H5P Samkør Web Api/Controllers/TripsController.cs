@@ -30,6 +30,11 @@ public class TripsController : ControllerBase
     {
         var query = _db.Trips.Include(t => t.Driver).AsQueryable();
 
+        // Søgning viser kun kommende ture - en tur, der allerede er
+        // kørt, er ikke relevant at finde eller booke sig på
+        var now = DateTime.UtcNow;
+        query = query.Where(t => t.DepartureTime > now);
+
         if (!string.IsNullOrWhiteSpace(from))
             query = query.Where(t => t.FromCity.Contains(from));
 

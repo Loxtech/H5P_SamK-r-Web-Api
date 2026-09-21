@@ -1,0 +1,46 @@
+<div class="page">
+  <div class="heading">
+    <h1>Mine ture</h1>
+    <p>Overblik over ture du kører, og ture du er booket ind på.</p>
+  </div>
+
+  <div class="tabs">
+    <button type="button" [class.active]="activeTab() === 'planned'" (click)="setTab('planned')">
+      Planlagte
+    </button>
+    <button type="button" [class.active]="activeTab() === 'completed'" (click)="setTab('completed')">
+      Gennemførte
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <p class="status">Henter...</p>
+  }
+
+  @if (errorMessage()) {
+    <p class="status error">{{ errorMessage() }}</p>
+  }
+
+  @if (!isLoading()) {
+    <div class="results">
+      @for (item of (activeTab() === 'planned' ? planned() : completed()); track item.tripId) {
+        <article class="trip-card">
+          <div class="route">
+            <span class="city">{{ item.fromCity }}</span>
+            <span class="arrow" aria-hidden="true">→</span>
+            <span class="city">{{ item.toCity }}</span>
+          </div>
+          <div class="meta">
+            <span>{{ item.departureTime | date: 'd. MMM yyyy, HH:mm' }}</span>
+          </div>
+          <div class="footer">
+            <span class="badge role">{{ item.role }}</span>
+            <span class="badge status">{{ item.status }}</span>
+          </div>
+        </article>
+      } @empty {
+        <p class="status">Ingen ture her endnu.</p>
+      }
+    </div>
+  }
+</div>

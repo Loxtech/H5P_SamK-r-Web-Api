@@ -1,0 +1,72 @@
+<header class="site-header">
+  <a routerLink="/trips" class="brand" (click)="closeMenu()">
+    <svg width="30" height="20" viewBox="0 0 34 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="10.5" stroke="var(--color-primary)" stroke-width="1.6" />
+      <circle cx="22" cy="12" r="10.5" stroke="var(--color-accent)" stroke-width="1.6" />
+    </svg>
+    <span>SamKør</span>
+  </a>
+
+  <nav class="nav-desktop">
+    <a routerLink="/trips">Søg ture</a>
+    @if (authService.isLoggedIn()) {
+      <a routerLink="/my-trips">Mine ture</a>
+      <a routerLink="/bookings/received">Anmodninger</a>
+    }
+  </nav>
+
+  <div class="session session-desktop">
+    @if (authService.isLoggedIn()) {
+      <span class="user">{{ authService.currentUser()?.fullName }}</span>
+      <button type="button" (click)="logout()">Log ud</button>
+    } @else {
+      <a routerLink="/login" class="login-link">Log ind</a>
+    }
+  </div>
+
+  <button
+    type="button"
+    class="menu-toggle"
+    (click)="toggleMenu()"
+    [attr.aria-expanded]="isMenuOpen()"
+    aria-controls="mobile-nav"
+    aria-label="Åbn menu"
+  >
+    <svg width="22" height="16" viewBox="0 0 22 16" fill="none" aria-hidden="true">
+      <line x1="0" y1="1" x2="22" y2="1" stroke="var(--color-primary)" stroke-width="1.8" />
+      <line x1="0" y1="8" x2="22" y2="8" stroke="var(--color-primary)" stroke-width="1.8" />
+      <line x1="0" y1="15" x2="22" y2="15" stroke="var(--color-primary)" stroke-width="1.8" />
+    </svg>
+  </button>
+</header>
+
+<div class="mobile-overlay" [class.open]="isMenuOpen()" (click)="closeMenu()"></div>
+
+<aside id="mobile-nav" class="mobile-sidebar" [class.open]="isMenuOpen()">
+  <div class="mobile-sidebar-header">
+    <span class="brand-name">SamKør</span>
+    <button type="button" class="close-btn" (click)="closeMenu()" aria-label="Luk menu">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <line x1="1" y1="1" x2="15" y2="15" stroke="var(--color-primary)" stroke-width="1.8" />
+        <line x1="15" y1="1" x2="1" y2="15" stroke="var(--color-primary)" stroke-width="1.8" />
+      </svg>
+    </button>
+  </div>
+
+  <nav class="mobile-nav-links">
+    <a routerLink="/trips" (click)="closeMenu()">Søg ture</a>
+    @if (authService.isLoggedIn()) {
+      <a routerLink="/my-trips" (click)="closeMenu()">Mine ture</a>
+      <a routerLink="/bookings/received" (click)="closeMenu()">Anmodninger</a>
+    }
+  </nav>
+
+  <div class="mobile-session">
+    @if (authService.isLoggedIn()) {
+      <span class="user">{{ authService.currentUser()?.fullName }}</span>
+      <button type="button" (click)="logout()">Log ud</button>
+    } @else {
+      <a routerLink="/login" class="login-link" (click)="closeMenu()">Log ind</a>
+    }
+  </div>
+</aside>

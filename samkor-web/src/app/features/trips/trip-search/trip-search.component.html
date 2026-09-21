@@ -1,0 +1,81 @@
+<div class="page">
+  <div class="heading">
+    <h1>Find din næste tur</h1>
+    <p>Søg efter ture, andre allerede har oprettet.</p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="search()" class="search-form">
+    <div class="field">
+      <label for="from">Fra</label>
+      <input id="from" type="text" formControlName="from" placeholder="fx København" />
+    </div>
+    <div class="field">
+      <label for="to">Til</label>
+      <input id="to" type="text" formControlName="to" placeholder="fx Aarhus" />
+    </div>
+    <div class="field">
+      <label for="date">Dato</label>
+      <input id="date" type="date" formControlName="date" />
+    </div>
+    <button type="submit">Søg</button>
+  </form>
+
+  @if (isLoading()) {
+    <p class="status">Søger...</p>
+  }
+
+  @if (errorMessage()) {
+    <p class="status error">{{ errorMessage() }}</p>
+  }
+
+  @if (!isLoading() && hasSearched() && results().length === 0) {
+    <p class="status">Ingen ture matcher din søgning.</p>
+  }
+
+  <div class="results">
+    @for (trip of results(); track trip.id) {
+      <article class="trip-card">
+        <div class="route">
+          <span class="city">{{ trip.fromCity }}</span>
+          <span class="arrow" aria-hidden="true">→</span>
+          <span class="city">{{ trip.toCity }}</span>
+        </div>
+        <div class="meta">
+          <span>{{ trip.departureTime | date: 'd. MMM yyyy, HH:mm' }}</span>
+          <span>{{ trip.driverFullName }}</span>
+        </div>
+        <div class="footer">
+          <span class="seats">{{ trip.availableSeats }} ledige pladser</span>
+          <span class="price">{{ trip.pricePerSeat }} kr.</span>
+        </div>
+
+        <div class="actions">
+          @switch (bookingState()[trip.id]?.status) {
+            @case ('success') {
+              <p class="booking-message success">{{ bookingState()[trip.id]?.message }}</p>
+            }
+            @case ('error') {
+              <p class="booking-message error">{{ bookingState()[trip.id]?.message }}</p>
+              <button type="button" (click)="requestBooking(trip)">Prøv igen</button>
+            }
+            @default {
+              <button
+                type="button"
+                [disabled]="bookingState()[trip.id]?.status === 'loading' || trip.availableSeats === 0"
+                (click)="requestBooking(trip)"
+              >
+                @if (trip.availableSeats === 0) {
+                  Fuldt booket
+                } @else if (bookingState()[trip.id]?.status === 'loading') {
+                  Sender...
+                } @else {
+                  Anmod om plads
+                }
+              </button>
+            }
+          }
+        </div>
+      </article>
+    }
+  </div>
+</div>
