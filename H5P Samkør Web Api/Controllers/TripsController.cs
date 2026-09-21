@@ -26,7 +26,7 @@ public class TripsController : ControllerBase
     public async Task<ActionResult<IEnumerable<TripResponse>>> GetTrips(
         [FromQuery] string? from,
         [FromQuery] string? to,
-        [FromQuery] DateOnly? date)
+        [FromQuery] DateTime? departureAfter)
     {
         var query = _db.Trips.Include(t => t.Driver).AsQueryable();
 
@@ -41,12 +41,11 @@ public class TripsController : ControllerBase
         if (!string.IsNullOrWhiteSpace(to))
             query = query.Where(t => t.ToCity.Contains(to));
 
-        if (date.HasValue)
-        {
-            var start = date.Value.ToDateTime(TimeOnly.MinValue);
-            var end = start.AddDays(1);
-            query = query.Where(t => t.DepartureTime >= start && t.DepartureTime < end);
-        }
+        // Finder ture, der afgår på eller efter det valgte tidspunkt,
+        // i stedet for kun ture på én bestemt dag - så man fx kan søge
+        // "tidligst kl. 14" og få alle relevante ture fra da af
+        if (departureAfter.HasValue)
+            query = query.Where(t => t.DepartureTime >= departureAfter.Value);
 
         var trips = await query
             .OrderBy(t => t.DepartureTime)

@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { TripService } from '../../../core/services/trip.service';
 import { BookingService } from '../../../core/services/booking.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { FlatpickrDirective } from '../../../shared/directives/flatpickr.directive';
 import { Trip } from '../../../core/models/trip.models';
 
 interface BookingUiState {
@@ -15,7 +16,7 @@ interface BookingUiState {
 @Component({
   selector: 'app-trip-search',
   standalone: true,
-  imports: [ReactiveFormsModule, DatePipe],
+  imports: [ReactiveFormsModule, DatePipe, FlatpickrDirective],
   templateUrl: './trip-search.component.html',
   styleUrl: './trip-search.component.scss',
 })
@@ -35,7 +36,7 @@ export class TripSearchComponent implements OnInit {
   readonly form = this.fb.group({
     from: [''],
     to: [''],
-    date: [''],
+    departureAfter: [''],
   });
 
   ngOnInit(): void {
@@ -46,10 +47,14 @@ export class TripSearchComponent implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    const { from, to, date } = this.form.getRawValue();
+    const { from, to, departureAfter } = this.form.getRawValue();
 
     this.tripService
-      .search({ from: from || undefined, to: to || undefined, date: date || undefined })
+      .search({
+        from: from || undefined,
+        to: to || undefined,
+        departureAfter: departureAfter || undefined,
+      })
       .subscribe({
         next: (trips) => {
           this.results.set(trips);

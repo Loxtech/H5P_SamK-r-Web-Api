@@ -22,6 +22,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'trips/new',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/trips/create-trip/create-trip.component').then(
+        (m) => m.CreateTripComponent,
+      ),
+  },
+  {
     path: 'my-trips',
     canActivate: [authGuard],
     loadComponent: () =>

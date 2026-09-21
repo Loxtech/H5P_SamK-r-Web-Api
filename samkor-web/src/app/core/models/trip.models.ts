@@ -10,10 +10,19 @@ export interface Trip {
   vehicleId: string | null;
 }
 
+export interface CreateTripRequest {
+  fromCity: string;
+  toCity: string;
+  departureTime: string;
+  availableSeats: number;
+  pricePerSeat: number;
+  vehicleId: string | null;
+}
+
 export interface TripSearchParams {
   from?: string;
   to?: string;
-  date?: string; // yyyy-MM-dd
+  departureAfter?: string; // ISO-datetime-streng
 }
 
 export interface TripOverviewItem {
