@@ -103,6 +103,39 @@ public class TripsController : ControllerBase
         return Ok(ToResponse(trip));
     }
 
+    // Bedømmelse af medrejsende - liste over hvem der var med på en tur
+    // (chauffør + passagerer med godkendt booking), så frontend kan vise
+    // hvem der kan bedømmes. Kun tilgængelig for deltagere på turen selv.
+    [HttpGet("{id:guid}/participants")]
+    [Authorize]
+    public async Task<ActionResult<IEnumerable<ParticipantResponse>>> GetParticipants(Guid id)
+    {
+        var trip = await _db.Trips.Include(t => t.Driver).FirstOrDefaultAsync(t => t.Id == id);
+        if (trip is null)
+            return NotFound();
+
+        var currentUserId = User.GetUserId();
+        var isAdmin = User.IsInRole("Administrator");
+
+        if (!await _db.IsParticipant(trip, currentUserId) && !isAdmin)
+            return Forbid();
+
+        var participants = new List<ParticipantResponse>
+        {
+            new(trip.DriverId, trip.Driver.FullName, "Chauffør")
+        };
+
+        var passengers = await _db.Bookings
+            .Include(b => b.Passenger)
+            .Where(b => b.TripId == trip.Id && b.Status == BookingStatus.Accepted)
+            .Select(b => new ParticipantResponse(b.PassengerId, b.Passenger.FullName, "Passager"))
+            .ToListAsync();
+
+        participants.AddRange(passengers);
+
+        return Ok(participants);
+    }
+
     // Krav 2 - Oprettelse af tur
     [HttpPost]
     [Authorize]

@@ -1,0 +1,71 @@
+<div class="page">
+  <div class="heading">
+    <h1>Bedøm medrejsende</h1>
+    <p>Giv en stjernebedømmelse til dem, du delte turen med.</p>
+  </div>
+
+  @if (isLoading()) {
+    <p class="status">Henter...</p>
+  }
+
+  @if (errorMessage()) {
+    <p class="status error">{{ errorMessage() }}</p>
+  }
+
+  @if (!isLoading()) {
+    <div class="results">
+      @for (participant of participants(); track participant.userId) {
+        <article class="participant-card">
+          <div class="participant-header">
+            <span class="name">{{ participant.fullName }}</span>
+            <span class="badge">{{ participant.role }}</span>
+          </div>
+
+          @if (rowState()[participant.userId]?.status === 'success') {
+            <p class="rating-message success">{{ rowState()[participant.userId]?.message }}</p>
+          } @else {
+            <div class="stars">
+              @for (star of stars; track star) {
+                <button
+                  type="button"
+                  class="star"
+                  [class.active]="star <= (rowState()[participant.userId]?.stars ?? 0)"
+                  [attr.aria-pressed]="star <= (rowState()[participant.userId]?.stars ?? 0)"
+                  [attr.aria-label]="star + ' stjerne' + (star > 1 ? 'r' : '')"
+                  (click)="setStars(participant.userId, star)"
+                >
+                  ★
+                </button>
+              }
+            </div>
+
+            <label class="comment-field">
+              <span class="field-label">Kommentar (valgfri)</span>
+              <textarea
+                rows="2"
+                [value]="rowState()[participant.userId]?.comment ?? ''"
+                (input)="setComment(participant.userId, $any($event.target).value)"
+                placeholder="Hvordan var turen?"
+              ></textarea>
+            </label>
+
+            @if (rowState()[participant.userId]?.status === 'error') {
+              <p class="rating-message error">{{ rowState()[participant.userId]?.message }}</p>
+            }
+
+            <button
+              type="button"
+              class="submit-btn"
+              [disabled]="rowState()[participant.userId]?.status === 'loading'"
+              (click)="submit(participant)"
+            >
+              {{ rowState()[participant.userId]?.status === 'loading' ? 'Sender...' : 'Send bedømmelse' }}
+            </button>
+          }
+        </article>
+      } @empty {
+        <p class="status">Ingen deltagere fundet for denne tur.</p>
+      }
+    </div>
+  }
+</div>

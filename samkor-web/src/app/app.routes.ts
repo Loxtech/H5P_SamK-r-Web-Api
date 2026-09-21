@@ -43,4 +43,12 @@ export const routes: Routes = [
         (m) => m.ReceivedBookingsComponent,
       ),
   },
+  {
+    path: 'trips/:id/rate',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/ratings/rate-trip/rate-trip.component').then(
+        (m) => m.RateTripComponent,
+      ),
+  },
 ];

@@ -56,6 +56,12 @@
               </button>
             </div>
           }
+
+          @if (item.isCompleted) {
+            <div class="actions">
+              <a [routerLink]="['/trips', item.tripId, 'rate']" class="rate-link">Bedøm medrejsende</a>
+            </div>
+          }
         </article>
       } @empty {
         <p class="status">Ingen ture her endnu.</p>
