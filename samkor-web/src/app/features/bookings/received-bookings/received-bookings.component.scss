@@ -26,50 +26,6 @@
   }
 }
 
-.search-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  align-items: flex-end;
-  background: #fff;
-  border: 1px solid var(--color-border);
-  border-radius: 16px;
-  padding: 20px;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: 1 1 140px;
-
-  label {
-    font-size: 13px;
-    font-weight: 700;
-  }
-
-  input {
-    height: 44px;
-    padding: 0 12px;
-    border: 1px solid var(--color-border);
-    border-radius: 8px;
-    font-size: 14px;
-    font-family: inherit;
-    color: var(--color-primary);
-  }
-}
-
-.search-form button {
-  height: 44px;
-  padding: 0 24px;
-  border: none;
-  border-radius: 22px;
-  background: var(--color-primary);
-  color: var(--color-bg);
-  font-weight: 700;
-  cursor: pointer;
-}
-
 .status {
   color: var(--color-text-muted);
   font-size: 14px;
@@ -117,30 +73,28 @@
 
 .footer {
   display: flex;
-  justify-content: space-between;
-  font-size: 14px;
+}
 
-  .seats {
-    color: var(--color-text-muted);
-  }
-
-  .price {
-    font-weight: 700;
-  }
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  background: #fbeee9;
+  color: var(--color-brick);
 }
 
 .actions {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex-wrap: wrap;
 
   button {
     height: 40px;
     padding: 0 20px;
-    border: none;
     border-radius: 20px;
-    background: var(--color-primary);
-    color: var(--color-bg);
     font-weight: 700;
     font-size: 14px;
     font-family: inherit;
@@ -151,18 +105,23 @@
       cursor: not-allowed;
     }
   }
+
+  .accept {
+    border: none;
+    background: var(--color-primary);
+    color: var(--color-bg);
+  }
+
+  .reject {
+    border: 1px solid var(--color-border);
+    background: #fff;
+    color: var(--color-primary);
+  }
 }
 
-.booking-message {
+.booking-message.error {
   margin: 0;
   font-size: 13px;
-
-  &.success {
-    color: var(--color-primary);
-    font-weight: 600;
-  }
-
-  &.error {
-    color: var(--color-error);
-  }
+  color: var(--color-error);
+  width: 100%;
 }

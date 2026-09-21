@@ -48,6 +48,33 @@
           <span class="seats">{{ trip.availableSeats }} ledige pladser</span>
           <span class="price">{{ trip.pricePerSeat }} kr.</span>
         </div>
+
+        <div class="actions">
+          @switch (bookingState()[trip.id]?.status) {
+            @case ('success') {
+              <p class="booking-message success">{{ bookingState()[trip.id]?.message }}</p>
+            }
+            @case ('error') {
+              <p class="booking-message error">{{ bookingState()[trip.id]?.message }}</p>
+              <button type="button" (click)="requestBooking(trip)">Prøv igen</button>
+            }
+            @default {
+              <button
+                type="button"
+                [disabled]="bookingState()[trip.id]?.status === 'loading' || trip.availableSeats === 0"
+                (click)="requestBooking(trip)"
+              >
+                @if (trip.availableSeats === 0) {
+                  Fuldt booket
+                } @else if (bookingState()[trip.id]?.status === 'loading') {
+                  Sender...
+                } @else {
+                  Anmod om plads
+                }
+              </button>
+            }
+          }
+        </div>
       </article>
     }
   </div>

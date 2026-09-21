@@ -1,0 +1,61 @@
+<div class="page">
+  <div class="heading">
+    <h1>Bookinganmodninger</h1>
+    <p>Anmodninger om plads på dine ture.</p>
+  </div>
+
+  @if (isLoading()) {
+    <p class="status">Henter...</p>
+  }
+
+  @if (errorMessage()) {
+    <p class="status error">{{ errorMessage() }}</p>
+  }
+
+  @if (!isLoading()) {
+    <div class="results">
+      @for (booking of bookings(); track booking.id) {
+        <article class="trip-card">
+          <div class="route">
+            <span class="city">{{ booking.fromCity }}</span>
+            <span class="arrow" aria-hidden="true">→</span>
+            <span class="city">{{ booking.toCity }}</span>
+          </div>
+          <div class="meta">
+            <span>{{ booking.departureTime | date: 'd. MMM yyyy, HH:mm' }}</span>
+            <span>{{ booking.passengerFullName }}</span>
+          </div>
+          <div class="footer">
+            <span class="badge status">{{ booking.status }}</span>
+          </div>
+
+          @if (booking.status === 'Pending') {
+            <div class="actions">
+              @if (actionState()[booking.id]?.status === 'error') {
+                <p class="booking-message error">{{ actionState()[booking.id]?.message }}</p>
+              }
+              <button
+                type="button"
+                class="accept"
+                [disabled]="actionState()[booking.id]?.status === 'loading'"
+                (click)="accept(booking)"
+              >
+                Godkend
+              </button>
+              <button
+                type="button"
+                class="reject"
+                [disabled]="actionState()[booking.id]?.status === 'loading'"
+                (click)="reject(booking)"
+              >
+                Afvis
+              </button>
+            </div>
+          }
+        </article>
+      } @empty {
+        <p class="status">Ingen anmodninger endnu.</p>
+      }
+    </div>
+  }
+</div>
