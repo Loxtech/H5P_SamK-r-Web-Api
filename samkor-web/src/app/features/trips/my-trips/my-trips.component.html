@@ -41,19 +41,25 @@
             <span class="badge status">{{ item.status }}</span>
           </div>
 
-          @if (item.role === 'Chauffør' && !item.isCompleted) {
+          @if (!item.isCompleted) {
             <div class="actions">
-              @if (cancelState()[item.tripId]?.status === 'error') {
-                <p class="cancel-message">{{ cancelState()[item.tripId]?.message }}</p>
+              @if (item.role === 'Chauffør' || item.status === 'Accepted') {
+                <a [routerLink]="['/trips', item.tripId, 'chat']" class="chat-link">Chat</a>
               }
-              <button
-                type="button"
-                class="cancel-btn"
-                [disabled]="cancelState()[item.tripId]?.status === 'loading'"
-                (click)="cancelTrip(item)"
-              >
-                Aflys tur
-              </button>
+
+              @if (item.role === 'Chauffør') {
+                @if (cancelState()[item.tripId]?.status === 'error') {
+                  <p class="cancel-message">{{ cancelState()[item.tripId]?.message }}</p>
+                }
+                <button
+                  type="button"
+                  class="cancel-btn"
+                  [disabled]="cancelState()[item.tripId]?.status === 'loading'"
+                  (click)="cancelTrip(item)"
+                >
+                  Aflys tur
+                </button>
+              }
             </div>
           }
 

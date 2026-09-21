@@ -1,0 +1,52 @@
+<div class="page">
+  <div class="heading">
+    @if (trip(); as t) {
+      <h1>{{ t.fromCity }} → {{ t.toCity }}</h1>
+      <p>{{ t.departureTime | date: 'd. MMM yyyy, HH:mm' }}</p>
+    } @else {
+      <h1>Chat</h1>
+    }
+  </div>
+
+  @if (chatService.connectionState() === 'loading') {
+    <p class="status">Henter chat...</p>
+  }
+
+  @if (chatService.connectionState() === 'error') {
+    <p class="status error">{{ chatService.errorMessage() }}</p>
+  }
+
+  @if (chatService.connectionState() !== 'loading') {
+    <div class="chat-box">
+      <div class="messages">
+        @for (message of chatService.messages(); track message.id) {
+          <div class="message" [class.own]="isOwnMessage(message)">
+            <div class="meta">{{ message.senderFullName }} · {{ message.sentAt | date: 'HH:mm' }}</div>
+            <div class="bubble">{{ message.content }}</div>
+          </div>
+        } @empty {
+          <p class="status">Ingen beskeder endnu. Sig hej!</p>
+        }
+        <div #scrollAnchor></div>
+      </div>
+
+      <div class="composer">
+        <input
+          type="text"
+          [value]="draft()"
+          (input)="setDraft($any($event.target).value)"
+          (keydown.enter)="send()"
+          placeholder="Skriv en besked..."
+          [disabled]="chatService.connectionState() !== 'connected'"
+        />
+        <button
+          type="button"
+          (click)="send()"
+          [disabled]="chatService.connectionState() !== 'connected' || !draft().trim()"
+        >
+          Send
+        </button>
+      </div>
+    </div>
+  }
+</div>

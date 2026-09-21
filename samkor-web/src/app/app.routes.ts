@@ -51,4 +51,12 @@ export const routes: Routes = [
         (m) => m.RateTripComponent,
       ),
   },
+  {
+    path: 'trips/:id/chat',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/chat/trip-chat/trip-chat.component').then(
+        (m) => m.TripChatComponent,
+      ),
+  },
 ];
