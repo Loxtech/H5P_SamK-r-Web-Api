@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { RatingService } from '../../../core/services/rating.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Participant } from '../../../core/models/rating.models';
 
 interface RatingRowState {
@@ -20,6 +21,7 @@ interface RatingRowState {
 export class RateTripComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly ratingService = inject(RatingService);
+  private readonly authService = inject(AuthService);
 
   private tripId = '';
 
@@ -43,10 +45,12 @@ export class RateTripComponent implements OnInit {
       myRatings: this.ratingService.getMyRatingsForTrip(this.tripId),
     }).subscribe({
       next: ({ participants, myRatings }) => {
-        this.participants.set(participants);
+        const currentUserId = this.authService.currentUser()?.userId;
+        const others = participants.filter((p) => p.userId !== currentUserId);
+        this.participants.set(others);
 
         const initialState: Record<string, RatingRowState> = {};
-        for (const p of participants) {
+        for (const p of others) {
           const existing = myRatings.find((r) => r.rateeId === p.userId);
           initialState[p.userId] = existing
             ? {

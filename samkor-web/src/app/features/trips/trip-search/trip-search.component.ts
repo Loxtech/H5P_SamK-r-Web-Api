@@ -24,7 +24,7 @@ export class TripSearchComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly tripService = inject(TripService);
   private readonly bookingService = inject(BookingService);
-  private readonly authService = inject(AuthService);
+  readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
   readonly isLoading = signal(false);

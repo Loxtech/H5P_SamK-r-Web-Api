@@ -66,6 +66,7 @@ public class AuthController : ControllerBase
         var expiresInMinutes = double.Parse(_config["Jwt:ExpiresInMinutes"] ?? "60");
 
         return new AuthResponse(
+            user.Id,
             token,
             DateTime.UtcNow.AddMinutes(expiresInMinutes),
             user.FullName,
