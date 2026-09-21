@@ -65,6 +65,17 @@ namespace H5P_Samkør_Web_Api
                     };
                 });
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAngularDev", policy =>
+                {
+                    policy.WithOrigins("http://localhost:4200")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials(); // nødvendigt for SignalR
+                });
+            });
+
             builder.Services.AddAuthorization();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddSignalR();
@@ -152,6 +163,7 @@ namespace H5P_Samkør_Web_Api
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseCors("AllowAngularDev");
 
             app.UseAuthentication();
             app.UseAuthorization();
