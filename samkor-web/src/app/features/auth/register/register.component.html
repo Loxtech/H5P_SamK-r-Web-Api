@@ -1,0 +1,50 @@
+<div class="login-page">
+  <div class="brand">
+    <svg width="34" height="24" viewBox="0 0 34 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="10.5" stroke="var(--color-primary)" stroke-width="1.6" />
+      <circle cx="22" cy="12" r="10.5" stroke="var(--color-accent)" stroke-width="1.6" />
+    </svg>
+    <span class="brand-name">SamKør</span>
+  </div>
+
+  <div class="heading">
+    <h1>Opret din profil</h1>
+    <p>Kom i gang med at dele og finde ture.</p>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
+    <div class="field">
+      <label for="fullName">Fulde navn</label>
+      <input id="fullName" type="text" formControlName="fullName" placeholder="Dit navn" />
+      @if (form.controls.fullName.invalid && form.controls.fullName.touched) {
+        <span class="field-error">Indtast dit fulde navn.</span>
+      }
+    </div>
+
+    <div class="field">
+      <label for="email">E-mail</label>
+      <input id="email" type="email" formControlName="email" placeholder="dig@eksempel.dk" />
+      @if (form.controls.email.invalid && form.controls.email.touched) {
+        <span class="field-error">Indtast en gyldig e-mailadresse.</span>
+      }
+    </div>
+
+    <div class="field">
+      <label for="password">Adgangskode</label>
+      <input id="password" type="password" formControlName="password" placeholder="Mindst 8 tegn" />
+      @if (form.controls.password.invalid && form.controls.password.touched) {
+        <span class="field-error">Adgangskode skal være mindst 8 tegn.</span>
+      }
+    </div>
+
+    @if (errorMessage()) {
+      <p class="form-error">{{ errorMessage() }}</p>
+    }
+
+    <button type="submit" [disabled]="isSubmitting()">
+      {{ isSubmitting() ? 'Opretter...' : 'Opret profil' }}
+    </button>
+  </form>
+
+  <p class="switch-link">Har du allerede en konto? <a routerLink="/login">Log ind her</a></p>
+</div>
