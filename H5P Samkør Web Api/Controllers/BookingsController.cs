@@ -176,6 +176,27 @@ public class BookingsController : ControllerBase
         return NoContent();
     }
 
+    // Krav 8 - administrator kan fjerne en booking helt (til
+    // moderation), i modsætning til afvis, som kun gælder afventende
+    // anmodninger. Frigiver automatisk pladsen igen, hvis bookingen
+    // var godkendt.
+    [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Administrator")]
+    public async Task<IActionResult> DeleteBooking(Guid id)
+    {
+        var booking = await _db.Bookings.Include(b => b.Trip).FirstOrDefaultAsync(b => b.Id == id);
+        if (booking is null)
+            return NotFound();
+
+        if (booking.Status == BookingStatus.Accepted)
+            booking.Trip.AvailableSeats += 1;
+
+        _db.Bookings.Remove(booking);
+        await _db.SaveChangesAsync();
+
+        return NoContent();
+    }
+
     private static BookingResponse ToResponse(Booking booking) => new(
         booking.Id,
         booking.TripId,

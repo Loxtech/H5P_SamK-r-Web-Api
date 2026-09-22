@@ -26,7 +26,8 @@ public class ChatHub : Hub
             throw new HubException("Turen findes ikke.");
 
         var userId = Context.User!.GetUserId();
-        if (!await _db.IsParticipant(trip, userId))
+        var isAdmin = Context.User.IsInRole("Administrator");
+        if (!isAdmin && !await _db.IsParticipant(trip, userId))
             throw new HubException("Du har ikke adgang til denne turs chat.");
 
         await Groups.AddToGroupAsync(Context.ConnectionId, GroupName(tripId));
@@ -42,7 +43,8 @@ public class ChatHub : Hub
             throw new HubException("Turen findes ikke.");
 
         var userId = Context.User!.GetUserId();
-        if (!await _db.IsParticipant(trip, userId))
+        var isAdmin = Context.User.IsInRole("Administrator");
+        if (!isAdmin && !await _db.IsParticipant(trip, userId))
             throw new HubException("Du har ikke adgang til denne turs chat.");
 
         var sender = await _db.Users.FindAsync(userId);

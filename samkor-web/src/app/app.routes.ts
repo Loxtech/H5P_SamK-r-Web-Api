@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'trips', pathMatch: 'full' },
@@ -57,6 +58,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/chat/trip-chat/trip-chat.component').then(
         (m) => m.TripChatComponent,
+      ),
+  },
+  {
+    path: 'admin',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./features/admin/admin-dashboard/admin-dashboard.component').then(
+        (m) => m.AdminDashboardComponent,
       ),
   },
 ];

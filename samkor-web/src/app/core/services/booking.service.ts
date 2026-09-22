@@ -30,4 +30,9 @@ export class BookingService {
   reject(id: string): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/${id}/reject`, {});
   }
+
+  // Krav 8 - administrator kan fjerne en booking helt (moderation)
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
 }

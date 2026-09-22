@@ -56,6 +56,11 @@ public class AuthController : ControllerBase
         if (!passwordValid)
             return Unauthorized("Forkert e-mail eller adgangskode.");
 
+        // En administrator kan deaktivere en bruger via lockout i stedet
+        // for at slette den (se AdminController) - det tjekkes her
+        if (await _userManager.IsLockedOutAsync(user))
+            return Unauthorized("Denne konto er deaktiveret. Kontakt en administrator.");
+
         return Ok(await BuildAuthResponse(user));
     }
 
