@@ -14,6 +14,9 @@
       <a routerLink="/my-trips">Mine ture</a>
       <a routerLink="/bookings/received">Anmodninger</a>
     }
+    @if (authService.isAdmin()) {
+      <a routerLink="/admin">Admin</a>
+    }
   </nav>
 
   <div class="session session-desktop">
@@ -60,6 +63,9 @@
       <a routerLink="/trips/new" (click)="closeMenu()">Opret tur</a>
       <a routerLink="/my-trips" (click)="closeMenu()">Mine ture</a>
       <a routerLink="/bookings/received" (click)="closeMenu()">Anmodninger</a>
+    }
+    @if (authService.isAdmin()) {
+      <a routerLink="/admin" (click)="closeMenu()">Admin</a>
     }
   </nav>
 

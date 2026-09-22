@@ -1,0 +1,151 @@
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 48px 24px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.heading {
+  h1 {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: var(--color-text-muted);
+    font-size: 15px;
+  }
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.tabs button {
+  padding: 10px 18px;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background: #fff;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+
+  &.active {
+    background: var(--color-primary);
+    color: var(--color-bg);
+    border-color: var(--color-primary);
+  }
+}
+
+.status {
+  color: var(--color-text-muted);
+  font-size: 14px;
+
+  &.error {
+    color: var(--color-error);
+  }
+}
+
+.trip-search input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 22px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--color-primary);
+  background: #fff;
+
+  &:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+  }
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-card {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.admin-card-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .name {
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  .email {
+    font-size: 13px;
+    color: var(--color-text-muted);
+  }
+}
+
+.badges {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #eef0ea;
+  color: var(--color-primary);
+
+  &.locked {
+    background: #fbeee9;
+    color: var(--color-brick);
+  }
+}
+
+.admin-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  height: 36px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: #fff;
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+
+  &.danger {
+    border-color: var(--color-brick);
+    color: var(--color-brick);
+  }
+}

@@ -1,0 +1,136 @@
+<div class="page">
+  <div class="heading">
+    <h1>Admin-dashboard</h1>
+    <p>Overblik og moderation af brugere, ture og bookinger.</p>
+  </div>
+
+  <div class="tabs">
+    <button type="button" [class.active]="activeTab() === 'users'" (click)="setTab('users')">Brugere</button>
+    <button type="button" [class.active]="activeTab() === 'trips'" (click)="setTab('trips')">Ture</button>
+    <button type="button" [class.active]="activeTab() === 'bookings'" (click)="setTab('bookings')">Bookinger</button>
+  </div>
+
+  @if (isLoading()) {
+    <p class="status">Henter...</p>
+  }
+
+  @if (errorMessage()) {
+    <p class="status error">{{ errorMessage() }}</p>
+  }
+
+  @if (actionError()) {
+    <p class="status error">{{ actionError() }}</p>
+  }
+
+  @if (!isLoading()) {
+    @if (activeTab() === 'users') {
+      <div class="trip-search">
+        <input
+          type="text"
+          [value]="userSearchTerm()"
+          (input)="setUserSearch($any($event.target).value)"
+          placeholder="Søg på navn eller e-mail..."
+        />
+      </div>
+
+      <div class="results">
+        @for (user of filteredUsers(); track user.id) {
+          <article class="admin-card">
+            <div class="admin-card-main">
+              <span class="name">{{ user.fullName }}</span>
+              <span class="email">{{ user.email }}</span>
+              <div class="badges">
+                @for (role of user.roles; track role) {
+                  <span class="badge">{{ role }}</span>
+                }
+                @if (user.isLockedOut) {
+                  <span class="badge locked">Deaktiveret</span>
+                }
+              </div>
+            </div>
+
+            @if (user.isLockedOut) {
+              <button type="button" class="action-btn" (click)="reactivateUser(user)">Genaktivér</button>
+            } @else {
+              <button type="button" class="action-btn danger" (click)="requestDeactivate(user)">Deaktivér</button>
+            }
+          </article>
+        } @empty {
+          <p class="status">
+            {{ userSearchTerm() ? 'Ingen brugere matcher din søgning.' : 'Ingen brugere fundet.' }}
+          </p>
+        }
+      </div>
+    }
+
+    @if (activeTab() === 'trips') {
+      <div class="trip-search">
+        <input
+          type="text"
+          [value]="tripSearchTerm()"
+          (input)="setTripSearch($any($event.target).value)"
+          placeholder="Søg på by eller chauffør..."
+        />
+      </div>
+
+      <div class="results">
+        @for (trip of filteredTrips(); track trip.id) {
+          <article class="admin-card">
+            <div class="admin-card-main">
+              <span class="name">{{ trip.fromCity }} → {{ trip.toCity }}</span>
+              <span class="email">
+                {{ trip.departureTime | date: 'd. MMM yyyy, HH:mm' }} · {{ trip.driverFullName }}
+              </span>
+            </div>
+            <div class="admin-actions">
+              <a [routerLink]="['/trips', trip.id, 'chat']" class="action-btn">Chat</a>
+              <button type="button" class="action-btn danger" (click)="requestDeleteTrip(trip)">Slet</button>
+            </div>
+          </article>
+        } @empty {
+          <p class="status">
+            {{ tripSearchTerm() ? 'Ingen ture matcher din søgning.' : 'Ingen ture fundet.' }}
+          </p>
+        }
+      </div>
+    }
+
+    @if (activeTab() === 'bookings') {
+      <div class="trip-search">
+        <input
+          type="text"
+          [value]="bookingSearchTerm()"
+          (input)="setBookingSearch($any($event.target).value)"
+          placeholder="Søg på by, passager eller status..."
+        />
+      </div>
+
+      <div class="results">
+        @for (booking of filteredBookings(); track booking.id) {
+          <article class="admin-card">
+            <div class="admin-card-main">
+              <span class="name">{{ booking.fromCity }} → {{ booking.toCity }}</span>
+              <span class="email">{{ booking.passengerFullName }} · {{ booking.status }}</span>
+            </div>
+            <button type="button" class="action-btn danger" (click)="requestDeleteBooking(booking)">Slet</button>
+          </article>
+        } @empty {
+          <p class="status">
+            {{ bookingSearchTerm() ? 'Ingen bookinger matcher din søgning.' : 'Ingen bookinger fundet.' }}
+          </p>
+        }
+      </div>
+    }
+  }
+</div>
+
+<app-confirm-dialog
+  [open]="dialogOpen"
+  [title]="dialogTitle"
+  [message]="dialogMessage"
+  confirmLabel="Bekræft"
+  cancelLabel="Annuller"
+  [danger]="true"
+  (confirmed)="confirmAction()"
+  (cancelled)="dismissAction()"
+/>
