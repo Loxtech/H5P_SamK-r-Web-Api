@@ -361,9 +361,3 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-
-#Tests
-SamKor-Tests
-trip-search.component.spec.ts
-login.component.spec.ts
-auth.service.spec.ts
