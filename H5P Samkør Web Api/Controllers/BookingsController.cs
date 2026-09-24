@@ -206,6 +206,8 @@ public class BookingsController : ControllerBase
         booking.PassengerId,
         booking.Passenger.FullName,
         booking.Status.ToString(),
-        booking.CreatedAt
+        booking.CreatedAt,
+        booking.Passenger.AverageRating,
+        booking.Passenger.RatingCount
     );
 }

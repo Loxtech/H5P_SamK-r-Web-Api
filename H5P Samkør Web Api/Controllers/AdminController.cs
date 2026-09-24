@@ -99,6 +99,7 @@ public class AdminController : ControllerBase
 
         return Ok(bookings.Select(b => new BookingResponse(
             b.Id, b.TripId, b.Trip.FromCity, b.Trip.ToCity, b.Trip.DepartureTime,
-            b.PassengerId, b.Passenger.FullName, b.Status.ToString(), b.CreatedAt)));
+            b.PassengerId, b.Passenger.FullName, b.Status.ToString(), b.CreatedAt,
+            b.Passenger.AverageRating, b.Passenger.RatingCount)));
     }
-}   
+}

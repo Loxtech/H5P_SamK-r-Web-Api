@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { BookingService } from '../../../core/services/booking.service';
 import { Booking } from '../../../core/models/booking.models';
 
@@ -11,7 +11,7 @@ interface ActionUiState {
 @Component({
   selector: 'app-received-bookings',
   standalone: true,
-  imports: [DatePipe],
+  imports: [DatePipe, DecimalPipe],
   templateUrl: './received-bookings.component.html',
   styleUrl: './received-bookings.component.scss',
 })

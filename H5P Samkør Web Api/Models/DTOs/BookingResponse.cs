@@ -9,5 +9,7 @@ public record BookingResponse(
     Guid PassengerId,
     string PassengerFullName,
     string Status,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    double PassengerAverageRating,
+    int PassengerRatingCount
 );

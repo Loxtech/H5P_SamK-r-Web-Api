@@ -23,7 +23,14 @@
           </div>
           <div class="meta">
             <span>{{ booking.departureTime | date: 'd. MMM yyyy, HH:mm' }}</span>
-            <span>{{ booking.passengerFullName }}</span>
+            <span class="passenger">
+              Anmoder: {{ booking.passengerFullName }}
+              @if (booking.passengerRatingCount > 0) {
+                <span class="rating">Gennemsnit {{ booking.passengerAverageRating | number: '1.1-1' }} ({{ booking.passengerRatingCount }})</span>
+              } @else {
+                <span class="rating muted">Ingen bedømmelser endnu</span>
+              }
+            </span>
           </div>
           <div class="footer">
             <span

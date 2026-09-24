@@ -8,4 +8,6 @@ export interface Booking {
   passengerFullName: string;
   status: string; // "Pending" | "Accepted" | "Rejected" | "Cancelled"
   createdAt: string;
+  passengerAverageRating: number;
+  passengerRatingCount: number;
 }
