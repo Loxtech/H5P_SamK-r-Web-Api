@@ -29,7 +29,7 @@ public class RatingsController : ControllerBase
             return NotFound("Turen findes ikke.");
 
         // Genbruger samme "gennemført"-definition som Krav 7-oversigten
-        if (trip.DepartureTime >= DateTime.UtcNow)
+        if (!trip.IsCompleted())
             return BadRequest("Turen er endnu ikke gennemført og kan ikke bedømmes.");
 
         var currentUserId = User.GetUserId();

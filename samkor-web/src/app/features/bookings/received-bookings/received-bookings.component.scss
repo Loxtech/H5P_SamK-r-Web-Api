@@ -83,6 +83,16 @@
   font-weight: 700;
   background: #fbeee9;
   color: var(--color-brick);
+
+  &.accepted {
+    background: #eef0ea;
+    color: var(--color-primary);
+  }
+
+  &.rejected {
+    background: #fbeee9;
+    color: var(--color-brick);
+  }
 }
 
 .actions {

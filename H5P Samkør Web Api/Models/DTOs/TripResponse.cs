@@ -9,5 +9,7 @@ public record TripResponse(
     DateTime DepartureTime,
     int AvailableSeats,
     decimal PricePerSeat,
-    Guid? VehicleId
+    Guid? VehicleId,
+    double DriverAverageRating,
+    int DriverRatingCount
 );

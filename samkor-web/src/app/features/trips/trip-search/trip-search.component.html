@@ -47,8 +47,16 @@
           <span class="city">{{ trip.toCity }}</span>
         </div>
         <div class="meta">
-          <span>{{ trip.departureTime | date: 'd. MMM yyyy, HH:mm' }}</span>
-          <span>{{ trip.driverFullName }}</span>
+          <span>Afgang: {{ trip.departureTime | date: 'd. MMM HH:mm' }}</span>
+          <span class="driver">
+            Chauffør:
+            {{ trip.driverFullName }},
+            @if (trip.driverRatingCount > 0) {
+              <span class="rating">Gennemsnit {{ trip.driverAverageRating | number: '1.1-1' }} ({{ trip.driverRatingCount }})</span>
+            } @else {
+              <span class="rating muted">Ingen bedømmelser endnu</span>
+            }
+          </span>
         </div>
         <div class="footer">
           <span class="seats">{{ trip.availableSeats }} ledige pladser</span>

@@ -84,7 +84,8 @@ public class AdminController : ControllerBase
 
         return Ok(trips.Select(t => new TripResponse(
             t.Id, t.DriverId, t.Driver.FullName, t.FromCity, t.ToCity,
-            t.DepartureTime, t.AvailableSeats, t.PricePerSeat, t.VehicleId)));
+            t.DepartureTime, t.AvailableSeats, t.PricePerSeat, t.VehicleId,
+            t.Driver.AverageRating, t.Driver.RatingCount)));
     }
 
     [HttpGet("bookings")]
@@ -100,4 +101,4 @@ public class AdminController : ControllerBase
             b.Id, b.TripId, b.Trip.FromCity, b.Trip.ToCity, b.Trip.DepartureTime,
             b.PassengerId, b.Passenger.FullName, b.Status.ToString(), b.CreatedAt)));
     }
-}
+}   

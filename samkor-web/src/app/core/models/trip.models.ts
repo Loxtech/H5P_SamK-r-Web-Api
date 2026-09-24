@@ -8,6 +8,8 @@ export interface Trip {
   availableSeats: number;
   pricePerSeat: number;
   vehicleId: string | null;
+  driverAverageRating: number;
+  driverRatingCount: number;
 }
 
 export interface CreateTripRequest {

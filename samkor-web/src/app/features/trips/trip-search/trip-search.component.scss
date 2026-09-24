@@ -116,6 +116,23 @@
   color: var(--color-text-muted);
 }
 
+.driver {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rating {
+  font-weight: 600;
+  color: var(--color-accent);
+
+  &.muted {
+    font-weight: 400;
+    font-style: italic;
+    color: var(--color-text-muted);
+  }
+}
+
 .footer {
   display: flex;
   justify-content: space-between;

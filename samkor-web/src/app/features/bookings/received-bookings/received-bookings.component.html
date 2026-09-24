@@ -26,7 +26,13 @@
             <span>{{ booking.passengerFullName }}</span>
           </div>
           <div class="footer">
-            <span class="badge status">{{ booking.status }}</span>
+            <span
+              class="badge status"
+              [class.accepted]="booking.status === 'Accepted'"
+              [class.rejected]="booking.status === 'Rejected'"
+            >
+              {{ booking.status }}
+            </span>
           </div>
 
           @if (booking.status === 'Pending') {

@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TripService } from '../../../core/services/trip.service';
@@ -16,7 +16,7 @@ interface BookingUiState {
 @Component({
   selector: 'app-trip-search',
   standalone: true,
-  imports: [ReactiveFormsModule, DatePipe, FlatpickrDirective],
+  imports: [ReactiveFormsModule, DatePipe, DecimalPipe, FlatpickrDirective],
   templateUrl: './trip-search.component.html',
   styleUrl: './trip-search.component.scss',
 })

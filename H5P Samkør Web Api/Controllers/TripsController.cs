@@ -31,8 +31,10 @@ public class TripsController : ControllerBase
         var query = _db.Trips.Include(t => t.Driver).AsQueryable();
 
         // Søgning viser kun kommende ture - en tur, der allerede er
-        // kørt, er ikke relevant at finde eller booke sig på
-        var now = DateTime.UtcNow;
+        // kørt, er ikke relevant at finde eller booke sig på.
+        // "now" beregnes i dansk tid, da DepartureTime er gemt som
+        // lokal (dansk) tid uden UTC-offset - se TripTimeExtensions.
+        var now = TripTimeExtensions.NowInDenmark();
         query = query.Where(t => t.DepartureTime > now);
 
         if (!string.IsNullOrWhiteSpace(from))
@@ -62,7 +64,6 @@ public class TripsController : ControllerBase
     public async Task<ActionResult<TripOverviewResponse>> GetMyTripsOverview()
     {
         var currentUserId = User.GetUserId();
-        var now = DateTime.UtcNow;
 
         var driverTrips = await _db.Trips
             .Where(t => t.DriverId == currentUserId)
@@ -78,11 +79,11 @@ public class TripsController : ControllerBase
 
         items.AddRange(driverTrips.Select(t => new TripOverviewItem(
             t.Id, t.FromCity, t.ToCity, t.DepartureTime,
-            "Chauffør", "Oprettet", t.DepartureTime < now)));
+            "Chauffør", "Oprettet", t.IsCompleted())));
 
         items.AddRange(passengerBookings.Select(b => new TripOverviewItem(
             b.TripId, b.Trip.FromCity, b.Trip.ToCity, b.Trip.DepartureTime,
-            "Passager", b.Status.ToString(), b.Trip.DepartureTime < now)));
+            "Passager", b.Status.ToString(), b.Trip.IsCompleted())));
 
         var ordered = items.OrderBy(i => i.DepartureTime).ToList();
 
@@ -141,7 +142,7 @@ public class TripsController : ControllerBase
     [Authorize]
     public async Task<ActionResult<TripResponse>> CreateTrip(CreateTripRequest request)
     {
-        if (request.DepartureTime <= DateTime.UtcNow)
+        if (request.DepartureTime <= TripTimeExtensions.NowInDenmark())
             return BadRequest("Afgangstidspunktet skal ligge i fremtiden.");
 
         var trip = new Trip
@@ -180,7 +181,7 @@ public class TripsController : ControllerBase
         if (trip.AvailableSeats == 0 && !isAdmin)
             return Conflict("Turen er fuldt booket og kan ikke længere redigeres.");
 
-        if (request.DepartureTime <= DateTime.UtcNow)
+        if (request.DepartureTime <= TripTimeExtensions.NowInDenmark())
             return BadRequest("Afgangstidspunktet skal ligge i fremtiden.");
 
         trip.FromCity = request.FromCity;
@@ -224,6 +225,8 @@ public class TripsController : ControllerBase
         trip.DepartureTime,
         trip.AvailableSeats,
         trip.PricePerSeat,
-        trip.VehicleId
+        trip.VehicleId,
+        trip.Driver.AverageRating,
+        trip.Driver.RatingCount
     );
 }
