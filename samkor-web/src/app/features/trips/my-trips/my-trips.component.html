@@ -34,11 +34,18 @@
             <span class="city">{{ item.toCity }}</span>
           </div>
           <div class="meta">
-            <span>Afgang: {{ item.departureTime | date: 'd. MMM HH:mm' }}</span>
+            <span>{{ item.departureTime | date: 'd. MMM yyyy, HH:mm' }}</span>
           </div>
           <div class="footer">
             <span class="badge role">{{ item.role }}</span>
-            <span class="badge status">{{ item.status }}</span>
+            <span
+              class="badge status"
+              [class.pending]="item.status === 'Pending'"
+              [class.accepted]="item.status === 'Accepted'"
+              [class.rejected]="item.status === 'Rejected'"
+            >
+              {{ item.status }}
+            </span>
           </div>
 
           @if (!item.isCompleted) {

@@ -133,6 +133,21 @@
 .badge.status {
   background: #fbeee9;
   color: var(--color-brick);
+
+  &.pending {
+    background: #fdf6e6;
+    color: #b8860b;
+  }
+
+  &.accepted {
+    background: #eef0ea;
+    color: var(--color-primary);
+  }
+
+  &.rejected {
+    background: #fbeee9;
+    color: var(--color-brick);
+  }
 }
 
 .actions {
